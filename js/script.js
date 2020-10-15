@@ -21,6 +21,19 @@ switch(lang){
 
 }
 
+let array = new Map([
+["ru", "Понедельник, вторник, среда"],
+["en", "Monday, fkldf, dkopr"]
+]);
+console.log( array[lang]);
+
+let myArray = {
+    'ru': 'Понедельник, вторник, среда', 
+    'en': 'Monday, kjdklf, hfseiu'  
+}
+
+console.log(myArray[lang]);
+
 let namePerson = prompt('Введите имя ');
 
 
