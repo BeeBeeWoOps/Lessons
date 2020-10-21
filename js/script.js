@@ -1,97 +1,94 @@
 'use strict';
 
+let expenses1,
+    expenses2;
+
 let number = function(n){
-return !isNaN(parseFloat(n)) && isFinite(n);
-};
-let money,
-    addExpenses = prompt('Перечислите возможные расходы за расчитываемы период через запятую'),
-    depozit = confirm('Есть ли у Вас депозит в банке?')? 'Да':'Нет',
-    mission = 50000,
-    expenses = [],
-    sum = [];
-    
-let start = function(){ // проверка входящих данных
-    do{
-    money = +prompt('Ваш месячный доход?');
-    }
-        while (!number(money));   //isNaN(parseFloat(money)))  //while(isNaN(money) || money.trim() === '' || money === null)
-};
-
-start();
-
-let showTypeOf = function(data){ // функция показывающая тип данных переменных
-    console.log(data, typeof(data));
-};
-showTypeOf(money);
-showTypeOf(addExpenses);
-
-
-let getExpensesMonth = function(){ // функция возвращает сумму всех обязательных расходов
-   
-    for(let i = 0; i<2; i++){
-        expenses[i] = prompt('Введите обязательную статью расходов?');   
-        sum += +prompt('Во сколько это обойдётся ?');              
-    
-   console.log( sum);
-   return sum;
-}
-};
-
-let expressesAmount = +getExpensesMonth();
-console.log('Paсходы за месяц: ' + expressesAmount );
-
-let getAccumulatedMonth = function(a){  //бюджет на месяц
-return a - expressesAmount;
-};
-
-getAccumulatedMonth(money, expressesAmount);
-
-let accumulatedMonth = +getAccumulatedMonth(money, expressesAmount);//в переменной функция которая вычисляет накопл
-
-let getTargetMonth = function(a, b){ // фнкция которая рассчитывает период за который мы достигнем цели
-    let sub = 0;
-    sub = a/b;
-   
-    if(sub < 0 ){
-        alert(`Цель не будет достигнута!`);
-    } 
-    return sub;
- };
- if (getTargetMonth(mission, accumulatedMonth)>0) {
-     alert( 'Цель будет достигнута через : ' + getTargetMonth(mission, accumulatedMonth));
- }
-
-let budgetDay =   accumulatedMonth/30; //вычисляем дневной доход
-console.log('Дневной бюджет: ' + budgetDay);
-
-
-let getstatusIncome = function(){ // функция  которая показывает урвоень дохода
-    if(budgetDay >= 1200){
-        return('У Вас высокий уровень дохода');
-    } else if( 1200 > budgetDay >= 600){
-        return('У Вас средний уровень дохода');
-    }else if(600 > budgetDay >= 0){
-        return('К сожалению, у Вас уровень дохода ниже среднего');
-    }else if(budgetDay <= 0 ){
-        return('Что-то пошло не так!');
-    }
+    return !isNaN(parseFloat(n)) ;
     };
+
+    let money,
+        start = function(){ // проверка входящих данных
+            do{
+             money = +prompt('Ваш месячный доход?');
+            }
+               while (!number(money));   //isNaN(parseFloat(money)))  //while(isNaN(money) || money.trim() === '' || money === null)
+     };
     
+    start();
 
-console.log(getstatusIncome());
+let appData = { // создали объект который будет содержать все переменные нашего проекта
+    income: {}, // дополнительные доходы
+    addIncome:[],// будем перечислять дополнительные доходы
+    expenses: {}, // дополнительные расходы
+    addExpenses: [],// массив с возможными расходами
+    depozit: false,
+    mission: 50000,
+    period: 3,
+    asking: function(){// опрос пользователя
+       let  addExpenses = prompt('Перечислите возможные расходы за расчитываемы период через запятую');
+        appData.addExpenses = addExpenses.toLowerCase().split(','); 
+        // переносим все в нижний регистр и разбиваем на массив 
+        //результат этой команды переносим в appData
+        appData.depozit = confirm('Есть ли у Вас депозит в банке?')? 'Да':'Нет';
+        let question; //для ввода вопроса о статье расходов
+        let question2;// для ввода вопроса во сколько обойдется
+        for(let i = 0; i<2; i++){  // цикл на вывод вопросов для ввода данных
+            question = prompt('Введите обязательную статью расходов?');             
+                   do{
+                    question2 = +prompt('Во сколько это обойдётся ?');
+                   }
+                   while(isNaN(question2) ||  question2 === 0 );
+                   
+                   appData.expenses[question] = question2; // получаем  в наш объект ключ: значение
+                   // квартплата: 5000
+                }
+    },
+    budget: money,
+    budgetDay: 0,
+    budgetMonth: 0,
+    expensesMonth: 0,
+    
+    getExpensesMonth: function(){// расчитываем сумму расходов
+        for( let key in appData.expenses){
+            appData.expensesMonth += appData.expenses[key];
+           
+        }
+    },
 
+    getBudget: function(){  //высчитывает значения свойств budgetMonth и Day|общий бюджет за 1 месяц      
+        appData.budgetMonth = appData.budget - appData.expensesMonth;
+        appData.budgetDay = appData.budgetMonth / 30;
+    },
 
+    getTargetMonth: function(){ // фнкция которая рассчитывает период за который мы достигнем цели
+       return Math.ceil(appData.mission / appData.budgetMonth);
+     },
+     getstatusIncome: function(){ // функция  которая показывает урвоень дохода
+        if(appData.budgetDay >= 1200){
+            return('У Вас высокий уровень дохода');
+        } else if( 1200 > appData.budgetDay >= 600){
+            return('У Вас средний уровень дохода');
+        }else if(600 > appData.budgetDay >= 0){
+            return('К сожалению, у Вас уровень дохода ниже среднего');
+        }else if(appData.budgetDay <= 0 ){
+            return('Что-то пошло не так!');
+        }
+        }
+        
+};
+ 
+appData.asking();
+appData.getExpensesMonth();
+appData.getBudget();
 
+console.log('Сумма всех расходов : ' + appData.expensesMonth);
+console.log('Цель будет достигнута через  ' + appData.getTargetMonth() + ' месяцев');
+console.log(' Уровень Вашго дохода ' + appData.getstatusIncome());
 
-
-
-// let budgetMonth = parseInt(money) - (parseInt(summ1) + parseInt(summ2));
-// console.log('Месячный бюджет: ' + budgetMonth);
-
-// let objective =  mission / budgetMonth;
-// console.log('Цель будет достигнута за: ' + Math.ceil(objective) + 'месяцев');  
-
-
+for( let key in appData){
+    console.log(' Наша программа включает в себя: ' + key);
+}
 
 
 
